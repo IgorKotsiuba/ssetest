@@ -11,7 +11,7 @@
     </tr>
   </thead>
 
-  <tbody>
+  <tbody class="comments">
     <% @comments.each do |comment| %>
       <tr>
         <td><%= comment.title %></td>
@@ -27,3 +27,19 @@
 <br>
 
 <%= link_to 'New Comment', new_comment_path %>
+
+<script type="text/javascript">
+  // var sse = new EventSource('/comments/events');
+  // sse.addEventListener('comments.create', function (e) {
+  //   console.log(e.data.data.title);
+  //   const child = document.createElement('tr');
+  //   child.innerHTML = `
+  //     <td>${e.data.data.title}</td>
+  //     <td>${e.data.data.body}</td>
+  //     <td><a href="/comments/${e.data.data.id}">Show</a></td>
+  //     <td><a href="/comments/${e.data.data.id}/edit">Edit</a></td>
+  //     <td><a data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/comments/13${e.data.data.id}">Destroy</a></td>
+  //   `
+  //   document.getElementsByClassName("comments")[0].appendChild(child);
+  // });
+</script>>
