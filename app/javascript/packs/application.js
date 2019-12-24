@@ -15,3 +15,48 @@ require("channels")
 //
 // const images = require.context('../images', true)
 // const imagePath = (name) => images(name, true)
+// var sse = new EventSource('/comments/events');
+// console.log('var', sse);
+// sse.onmessage = function (e) {
+//   alert(`${e.data}`);
+// };
+// sse.onerror = function (e) {
+//   alert(`${e}`);
+// };
+// sse.addEventListener('comments.create', function (e) {
+// sse.onmessage = function (e) {
+//   console.log(e.data);
+//   // alert(e.data);
+
+//   document.getElementsByClassName("comments")[0].appendChild(
+//     `<tr>
+//       <td>${e.data.data.title}</td>
+//       <td>${e.data.data.body}</td>
+//       <td><a href="/comments/${e.data.data.id}">Show</a></td>
+//       <td><a href="/comments/${e.data.data.id}/edit">Edit</a></td>
+//       <td><a data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/comments/13${e.data.data.id}">Destroy</a></td>
+//     </tr>`
+//   );
+// };
+
+var sse = new EventSource('/comments/events');
+// sse.addEventListener('comments.create', function (e) {
+sse.onmessage = function (e) {
+  console.log(e.data);
+  const data = JSON.parse(e.data);
+  const child = document.createElement('tr');
+  child.innerHTML = `
+    <td>${data.title}</td>
+    <td>${data.body}</td>
+    <td><a href="/comments/${data.id}">Show</a></td>
+    <td><a href="/comments/${data.id}/edit">Edit</a></td>
+    <td><a data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/comments/${data.id}">Destroy</a></td>
+  `
+  document.getElementsByClassName("comments")[0].appendChild(child);
+};
+
+
+// sse.addEventListener('comments.update', function (e) {
+//   console.log(e.data);
+//   // alert(e.data);
+// });

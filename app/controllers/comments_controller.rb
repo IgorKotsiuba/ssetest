@@ -1,5 +1,25 @@
 class CommentsController < ApplicationController
+  include ActionController::Live
   before_action :set_comment, only: [:show, :edit, :update, :destroy]
+
+  def events
+    response.headers['Content-Type'] = 'text/event-stream'
+    redis = Redis.new
+    sse = SSE.new(response.stream, retry: 300)
+
+    # redis.subscribe('message.*') do |on|
+      # on.pmessage do |channel, pattern, data|
+    redis.psubscribe('comments.*') do |on|
+      on.pmessage do |pattern, event, data|
+        sse.write(data, event: event)
+      end
+    end
+  rescue ActionController::Live::ClientDisconnected
+    logger.info('client disconnected')
+  ensure
+    sse.close
+    redis.quit
+  end
 
   # GET /comments
   # GET /comments.json
@@ -28,6 +48,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.save
+        $redis.publish('comments.create', @comment.to_json)
         format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
         format.json { render :show, status: :created, location: @comment }
       else
@@ -42,6 +63,7 @@ class CommentsController < ApplicationController
   def update
     respond_to do |format|
       if @comment.update(comment_params)
+        $redis.publish('comments.update', @comment.to_json)
         format.html { redirect_to @comment, notice: 'Comment was successfully updated.' }
         format.json { render :show, status: :ok, location: @comment }
       else
